@@ -38,11 +38,7 @@ def fill_scatter(d):
     sclist = []
     for country in all_countries:
         _data = d[country].sort_index()
-        sclist.append(
-            go.Scatter(
-                x=_data.index, y=_data.values, name=country
-            )
-        )
+        sclist.append(go.Scatter(x=_data.index, y=_data.values, name=country))
     return sclist
 
 
@@ -51,6 +47,7 @@ ig_layout = {
     'xaxis_title': 'Year',
     'yaxis_title': 'Rate'
 }
+
 eg_layout = {
     'title': 'exports/gdp',
     'xaxis_title': 'Year',
