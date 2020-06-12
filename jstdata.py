@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.offline as offline
 import plotly.express as px
+from time import sleep
 
 data = pd.read_excel('data/JSTdatasetR4.xlsx', sheet_name='Data')
 
@@ -53,15 +54,27 @@ eg_layout = {
     'xaxis_title': 'Year',
     'yaxis_title': 'Rate'
 }
+mean_layout = {
+    'title': 'mean',
+    'xaxis_title': 'Year',
+    'yaxis_title': 'mean'
+}
 
 fig_ig = go.Figure(layout=ig_layout)
 fig_eg = go.Figure(layout=eg_layout)
+fig_mean = go.Figure(layout=mean_layout)
+
+s_1=go.Scatter(x=mean_series.index, y=mean_series['mean_eg'].values, name='mean_eg')
+s_2=go.Scatter(x=mean_series.index, y=mean_series['mean_ig'].values, name='mean_ig')
 
 fig_ig.add_traces(fill_scatter(data_ig))
 fig_eg.add_traces(fill_scatter(data_eg))
 
-mean_plot = px.line(mean_series)
+fig_mean.add_traces([s_1,s_2])
+# mean_plot = px.line(mean_series)
 
 offline.plot(fig_ig)
+sleep(1)
 offline.plot(fig_eg)
-offline.plot(mean_plot)
+sleep(1)
+offline.plot(fig_mean)
