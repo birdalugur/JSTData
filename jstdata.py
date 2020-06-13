@@ -5,6 +5,10 @@
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.offline as offline
+import os
+
+if 'output' not in os.listdir():
+    os.mkdir('output')
 
 data = pd.read_excel('data/JSTdatasetR4.xlsx', sheet_name='Data')
 
