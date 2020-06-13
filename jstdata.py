@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.offline as offline
 import os
+from plotly.tools import make_subplots
 
 if 'output' not in os.listdir():
     os.mkdir('output')
@@ -18,23 +19,22 @@ data = data.set_index(['year', 'iso'])
 
 # ## Oran hesaplama
 
+# (exports+imports)/gdp
 
-# imports/gdp
-data_ig = data.groupby(level=1).apply(lambda x: x['imports'] / x['gdp']).droplevel(2)
+data_ieg = (data['imports'] + data['exports']) / data['gdp']
+data_ieg = data_ieg.swaplevel()
 
-# exports/gdp
-data_eg = data.groupby(level=1).apply(lambda x: x['exports'] / x['gdp']).droplevel(2)
+data_iex = (data['imports'] + data['exports']) * data['xrusd']
+data_gx = data['gdp'] * data['xrusd']
 
-# ## Dünya ortalaması
+data_gx = data_gx.swaplevel()
+data_iex = data_iex.swaplevel()
 
+total_iex = data_iex.groupby(level='year').sum()
+total_gx = data_gx.groupby(level='year').sum()
 
-mean_ig = data_ig.groupby(level=1).mean()
-mean_eg = data_eg.groupby(level=1).mean()
-
-mean_ig.name = 'mean_ig'
-mean_eg.name = 'mean_eg'
-
-mean_series = pd.concat([mean_ig, mean_eg], axis=1)
+rate = total_iex / total_gx
+rate = rate.sort_index()
 
 
 def fill_scatter(d):
@@ -45,37 +45,24 @@ def fill_scatter(d):
     return sclist
 
 
-ig_layout = {
-    'title': 'imports/gdp',
-    'xaxis_title': 'Year',
-    'yaxis_title': 'Rate'
-}
+def get_layout(title, yaxis):
+    _layout = {
+        'title': title,
+        'xaxis_title': 'Year',
+        'yaxis_title': yaxis
+    }
+    return _layout
 
-eg_layout = {
-    'title': 'exports/gdp',
-    'xaxis_title': 'Year',
-    'yaxis_title': 'Rate'
-}
-mean_layout = {
-    'title': 'mean',
-    'xaxis_title': 'Year',
-    'yaxis_title': 'mean'
-}
 
-fig_ig = go.Figure(layout=ig_layout)
-fig_eg = go.Figure(layout=eg_layout)
-fig_mean = go.Figure(layout=mean_layout)
+# Figures
 
-s_1 = go.Scatter(x=mean_series.index, y=mean_series['mean_eg'].values, name='mean_eg')
-s_2 = go.Scatter(x=mean_series.index, y=mean_series['mean_ig'].values, name='mean_ig')
 
-fig_ig.add_traces(fill_scatter(data_ig))
-fig_eg.add_traces(fill_scatter(data_eg))
+fig_ieg = go.Figure(layout=get_layout('(imports+exports)/gdp', 'rate'))
+fig_ieg.add_traces(fill_scatter(data_ieg))
 
-fig_mean.add_traces([s_1, s_2])
+fig_rate = go.Figure(layout=get_layout('rate of iex/gx', 'rate'))
+fig_rate.add_trace(go.Scatter(x=rate.index, y=rate.values))
 
-offline.plot(fig_ig, filename='output/ig.html')
+offline.plot(fig_ieg, filename='output/ieg.html')
 
-offline.plot(fig_eg, filename='output/eg.html')
-
-offline.plot(fig_mean, filename='output/mean.html')
+offline.plot(fig_rate, filename='output/rate.html')
