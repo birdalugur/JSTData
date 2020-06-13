@@ -17,18 +17,18 @@ all_countries = data['iso'].unique().tolist()
 
 data = data.set_index(['year', 'iso'])
 
-# ## Oran hesaplama
+data = data[['imports', 'exports', 'gdp', 'xrusd']]
 
-# (exports+imports)/gdp
+data = data.dropna()
 
 data_ieg = (data['imports'] + data['exports']) / data['gdp']
-data_ieg = data_ieg.swaplevel()
-
 data_iex = (data['imports'] + data['exports']) * data['xrusd']
 data_gx = data['gdp'] * data['xrusd']
 
-data_gx = data_gx.swaplevel()
+data_ieg = data_ieg.swaplevel()
 data_iex = data_iex.swaplevel()
+data_gx = data_gx.swaplevel()
+
 
 total_iex = data_iex.groupby(level='year').sum()
 total_gx = data_gx.groupby(level='year').sum()
