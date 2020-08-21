@@ -38,7 +38,7 @@ def calculateLn(variable: str, country: str) -> pd.Series:
 
     ln_base = np.log(data.xs(country, level='iso')[variable])
     res = data.groupby(level='iso', group_keys=False).apply(lambda x: np.log(x[variable]) - ln_base)
-    return res.drop(countryntry,level='iso')
+    return res.drop(country,level='iso')
 
 
 def plot_ln(fig_data,xlabel,ylabel):
